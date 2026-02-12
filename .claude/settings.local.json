@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew list:*)",
+      "Bash(xcode-select:*)",
+      "Bash(python3:*)",
+      "Bash(source:*)",
+      "Bash(printf:*)",
+      "Bash(/Users/penielhambiss/claude-projects/hello-python/venv/bin/python:*)",
+      "Bash(# Create a minimal valid PDF with text that pdfplumber can extract\n/Users/penielhambiss/claude-projects/hello-python/venv/bin/python3 << 'PYEOF'\n# Build a bare-minimum PDF with extractable text\nimport struct\n\nlines = [\n    \"Acme Corp Inc.\",\n    \"Invoice Number: INV-2024-042\",\n    \"Invoice Date: January 15, 2024\",\n    \"\",\n    \"Widget A  2  9.99  19.98\",\n    \"Gadget B  1  49.99  49.99\",\n    \"\",\n    \"Subtotal: $69.97\",\n    \"Tax: $6.30\",\n    \"Total: $76.27\",\n]\n\n# Build content stream\nstream_lines = [\"BT\", \"/F1 12 Tf\", \"72 750 Td\"]\nfor i, line in enumerate\\(lines\\):\n    if i > 0:\n        stream_lines.append\\(\"0 -18 Td\"\\)\n    safe = line.replace\\(\"\\(\", \"\\\\\\\\\\(\"\\).replace\\(\"\\)\", \"\\\\\\\\\\)\"\\)\n    stream_lines.append\\(f\"\\({safe}\\) Tj\"\\)\nstream_lines.append\\(\"ET\"\\)\nstream = \"\\\\n\".join\\(stream_lines\\)\n\nobjects = []\noffsets = []\npdf = b\"\"\n\ndef add\\(content\\):\n    global pdf\n    offsets.append\\(len\\(pdf\\)\\)\n    encoded = content.encode\\(\"latin-1\"\\) if isinstance\\(content, str\\) else content\n    pdf += encoded\n\nheader = b\"%PDF-1.4\\\\n\"\npdf += header\n\n# 1: catalog\nadd\\(f\"1 0 obj\\\\n<< /Type /Catalog /Pages 2 0 R >>\\\\nendobj\\\\n\"\\)\n# 2: pages\nadd\\(f\"2 0 obj\\\\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\\\\nendobj\\\\n\"\\)\n# 3: page\nadd\\(f\"3 0 obj\\\\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\\\\nendobj\\\\n\"\\)\n# 4: content stream\nstream_bytes = stream.encode\\(\"latin-1\"\\)\nadd\\(f\"4 0 obj\\\\n<< /Length {len\\(stream_bytes\\)} >>\\\\nstream\\\\n\"\\)\npdf += stream_bytes\npdf += b\"\\\\nendstream\\\\nendobj\\\\n\"\noffsets.append\\(None\\)  # placeholder to keep offset count right\n# 5: font\noffset5 = len\\(pdf\\)\noffsets_real = offsets[:4] + [offset5]\npdf += b\"5 0 obj\\\\n<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>\\\\nendobj\\\\n\"\n\nxref_offset = len\\(pdf\\)\npdf += b\"xref\\\\n\"\npdf += f\"0 6\\\\n\".encode\\(\\)\npdf += b\"0000000000 65535 f \\\\n\"\nfor i, off in enumerate\\(offsets_real\\):\n    pdf += f\"{off:010d} 00000 n \\\\n\".encode\\(\\)\npdf += b\"trailer\\\\n\"\npdf += b\"<< /Root 1 0 R /Size 6 >>\\\\n\"\npdf += b\"startxref\\\\n\"\npdf += f\"{xref_offset}\\\\n\".encode\\(\\)\npdf += b\"%%EOF\\\\n\"\n\nwith open\\(\"/tmp/test_invoice.pdf\", \"wb\"\\) as f:\n    f.write\\(pdf\\)\n\n# Verify extraction\nimport pdfplumber\nwith pdfplumber.open\\(\"/tmp/test_invoice.pdf\"\\) as p:\n    text = p.pages[0].extract_text\\(\\)\n    print\\(\"=== EXTRACTED TEXT ===\"\\)\n    print\\(text\\)\nPYEOF\n)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)"
+    ]
+  }
+}
