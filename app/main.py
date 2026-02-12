@@ -44,7 +44,13 @@ app = FastAPI(
     version="1.0.0",
     description="Extracts structured data from invoice PDFs.",
 )
-
+@app.get("/")
+def root():
+    return {
+        "status": "ok",
+        "service": "Invoice Parser API",
+        "docs": "/docs"
+    }
 # ---------------------------------------------------------------------------
 # Auth
 # ---------------------------------------------------------------------------
