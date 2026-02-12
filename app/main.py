@@ -21,6 +21,8 @@ from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, Field
 
+api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+
 # ---------------------------------------------------------------------------
 # Logging
 # ---------------------------------------------------------------------------
@@ -32,9 +34,17 @@ logger = logging.getLogger("invoice_parser")
 
 # ---------------------------------------------------------------------------
 # Config
+
 # ---------------------------------------------------------------------------
 API_KEY = os.environ.get("INVOICE_API_KEY", "dev-key-change-me")
 MAX_FILE_SIZE_MB = int(os.environ.get("MAX_FILE_SIZE_MB", "20"))
+
+from fastapi import Security
+
+def verify_api_key(api_key: str = Security(api_key_header)):
+    if api_key != f"Bearer {API_KEY}":
+        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+
 
 # ---------------------------------------------------------------------------
 # FastAPI app
