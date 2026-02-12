@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: invoice-parser-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: INVOICE_API_KEY
+        generateValue: true
+      - key: MAX_FILE_SIZE_MB
+        value: "20"
+      - key: PYTHON_VERSION
+        value: "3.11.6"
